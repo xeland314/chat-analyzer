@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# chat files
+chats/
+
 # C extensions
 *.so
 
