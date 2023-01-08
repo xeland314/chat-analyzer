@@ -25,20 +25,35 @@ Luego se instalan las librerías faltantes:
 pip3 install -r requirements.txt
 ```
 
-## Uso
-
-Una vez se ha clonado el repositorio, se puede usar la línea de comandos de la siguiente manera:
+El primer comando antes de analizar cualquier chat es:
 
 ```bash
-python3 main.py --file chat.txt
+python3 chat_analyzer.py --install
 ```
 
 o
 
 ```bash
-python3 main.py -f chat.txt
+python3 chat_analyzer.py -i
 ```
 
+Esto descargará:
+
+```python
+import nltk
+nltk.download("punkt")      # Separa el texto en palabras y signos de puntuación
+nltk.download("stopwords")  # Palabras más comunes para filtrar del texto original
+```
+
+## Uso
+
+Una vez se ha clonado el repositorio, se puede usar la línea de comandos de la siguiente manera:
+
+```bash
+python3 chat_analyzer.py chat.txt
+```
+
+Se pasa como argumento el nombre del archivo que se desea analizar.
 El resultado se imprimirá por consola.
 
 ### El chat lo puedes exportar desde tu celular
@@ -52,3 +67,5 @@ El resultado se imprimirá por consola.
 ## Resultados
 
 Por consola se imprimirán varias tablas que indican las palabras y emojis más utilizados en el chat por cada persona del chat.
+
+Nota importante: **¡Debes esperar entre 1 a 3 minutos!**

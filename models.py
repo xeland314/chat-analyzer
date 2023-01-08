@@ -1,8 +1,12 @@
 from collections import Counter
 from datetime import datetime
 from emoji import distinct_emoji_list
+from nltk.tokenize import word_tokenize
 from re import compile
-from stopwords import STOPWORDS
+from stopwords import STOPWORDS, FIRST_LANGUAGE
+
+es_word_pattern = compile(r"^[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+$")
+multimedia_pattern = compile(r"\<Multimedia omitido\>")
 
 class Message(object):
 
@@ -19,9 +23,6 @@ class Message(object):
         - emojis
         - words
     """
-
-    es_word_pattern = compile(r"\b[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+\b")
-    multimedia_pattern = compile(r"\<Multimedia omitido\>")
 
     def __init__(self, date_time, author, message) -> None:
         self.__date_time = date_time
@@ -43,18 +44,19 @@ class Message(object):
 
     @property
     def is_multimedia(self) -> bool:
-        return self.multimedia_pattern.search(self.__message)
+        return multimedia_pattern.search(self.__message)
 
     @property
     def words(self) -> Counter:
         if self.is_multimedia:
             return Counter()
-        words = self.es_word_pattern.findall(self.__message)
-        return Counter([word.casefold() for word in words if word.casefold() not in STOPWORDS])
+        words = word_tokenize(self.__message, language=FIRST_LANGUAGE)
+        filtered_words = [word for word in words if es_word_pattern.match(word)]
+        del(words)
+        return Counter([word.casefold() for word in filtered_words if word.casefold() not in STOPWORDS])
 
     def add_more_text(self, text) -> None:
-        self.__message += "\n"
-        self.__message += text
+        self.__message += "\n" + text
 
     def __str__(self) -> str:
         return self.__message
@@ -71,7 +73,7 @@ class Chat(object):
     """
 
     def __init__(self) -> None:
-        self.__messages = []
+        self.__messages = list[Message]()
         self.index = 0
 
     def append(self, new_message: Message) -> None:

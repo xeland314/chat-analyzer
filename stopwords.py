@@ -8,7 +8,7 @@ except Exception:
 FIRST_LANGUAGE = "spanish"
 SECOND_LANGUAGE = "english"
 
-IS_INCLUDED_A_SECOND_LANGUAGE = False
+IS_INCLUDED_A_SECOND_LANGUAGE = True
 IGNORE_HAHAHA = True
 
 STOPWORDS = stopwords.words(FIRST_LANGUAGE)
@@ -21,5 +21,6 @@ if IGNORE_HAHAHA:
 
 STOPWORDS += [line.replace("\n", "") for line in open("stopwords/alphabet.txt", "r")]
 STOPWORDS += [line.replace("\n", "").upper() for line in open("stopwords/alphabet.txt", "r")]
+STOPWORDS += [line.replace("\n", "") for line in open("stopwords/punctuation.txt", "r")]
 STOPWORDS += [line.replace("\n", "") for line in open("stopwords/otherwords.txt", "r")]
 STOPWORDS = set(STOPWORDS)
