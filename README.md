@@ -16,7 +16,7 @@ Las librerías necesarias para el uso de este programa son:
 Se puede clonar este repositorio:
 
 ```bash
-git clone https://github.com/xeland314/chat-anaylzer.git
+git clone https://github.com/xeland314/chat-anaylzer.git && cd chat-analyzer
 ```
 
 Luego se instalan las librerías faltantes:
@@ -55,6 +55,18 @@ python3 chat_analyzer.py chat.txt
 
 Se pasa como argumento el nombre del archivo que se desea analizar.
 El resultado se imprimirá por consola.
+
+También se puede definir el número de emojis y palabras más comunes para mostrar en el resumen:
+
+```bash
+python3 chat_analyzer.py chat.txt -w50 -e20
+```
+
+```bash
+python3 chat_analyzer.py chat.txt --words 50 --emojis 20
+```
+
+Los valores por defecto, son 30 palabras y 15 emojis por mostrar en el resumen.
 
 ### El chat lo puedes exportar desde tu celular
 

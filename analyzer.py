@@ -76,11 +76,12 @@ class WhatsappResult(object):
     def __init__(self,
         authors: Counter,
         emojis_by_person: Counter,
-        words_by_person: Counter
+        words_by_person: Counter,
+        parameters: dict
     ) -> None:
         self._set_title(authors)
-        self._set_emojis_panel(emojis_by_person)
-        self._set_words_panel(words_by_person)
+        self._set_emojis_panel(emojis_by_person, parameters["emojis"])
+        self._set_words_panel(words_by_person, parameters["words"])
 
     def _set_title(self, authors: Counter) -> None:
         title_content = ""
@@ -89,7 +90,7 @@ class WhatsappResult(object):
             title_content += f"[bold green]{authors[author]}[/bold green] mensajes.\n"
         self.__title_panel = Panel(title_content, title="Whatsapp Analyzer Results")
 
-    def _set_emojis_panel(self, emojis_by_person: Counter) -> None:
+    def _set_emojis_panel(self, emojis_by_person: Counter, n: int) -> None:
         self.__emoji_tables = []
         people = list(emojis_by_person.keys())
         for person in people:
@@ -98,7 +99,7 @@ class WhatsappResult(object):
             table.add_column("Type", justify="center", style="cyan")
             table.add_column("Frecuencia", justify="center", style="green")
             emojis: FreqDist = emojis_by_person[person]
-            for emoji, count in emojis.most_common(10):
+            for emoji, count in emojis.most_common(n):
                 demoji = demojize(emoji, delimiters=("_", "_"), language="es")
                 table.add_row(emoji, demoji.replace("_", " "), str(count))
             self.__emoji_tables.append(table)
@@ -106,7 +107,7 @@ class WhatsappResult(object):
     def __calculate_lexical_richness(self, words: FreqDist) -> float:
         return words.B() / words.N()
 
-    def _set_words_panel(self, words_by_person: Counter) -> None:
+    def _set_words_panel(self, words_by_person: Counter, n: int) -> None:
         self.__word_tables = []
         self.__word_panels= []
         people = list(words_by_person.keys())
@@ -116,7 +117,7 @@ class WhatsappResult(object):
             table.add_column("Palabra", justify="right")
             table.add_column("Frecuencia", justify="center", style="green")
             words: FreqDist = words_by_person[person]
-            for word, count in words.most_common(25):
+            for word, count in words.most_common(n):
                 table.add_row(word, str(count))
             self.__word_tables.append(table)
             # Create the summary word panel:
@@ -139,21 +140,15 @@ class WhatsappResult(object):
 
 class WhatsappAnalyzer(object):
 
-    def __init__(self, *args) -> None:
-        if len(args) > 1 or len(args) == 0:
-            raise NotImplementedError()
-        else:
-            if isinstance(args[0], str):
-                file = args[0]
-                if not exists(file):
-                    raise FileNotFoundError(f"El archivo {file} no existe.")
-                lanalyzer = LexicalAnalyzer()
-                lanalyzer.process_file(file)
-                self.__chat = lanalyzer.get_chat()
-            elif isinstance(args[0], Chat):
-                self.__chat = args[0]
-            else:
-                raise NotImplementedError()
+    def __init__(self, file: str, words: int, emojis: int) -> None:
+        if not exists(file):
+            raise FileNotFoundError(f"El archivo {file} no existe.")
+        lanalyzer = LexicalAnalyzer()
+        lanalyzer.process_file(file)
+        self.__chat = lanalyzer.get_chat()
+        self.__summary_parameters = {}
+        self.__summary_parameters["words"] = words if words > 0 else 20
+        self.__summary_parameters["emojis"] = emojis if emojis > 0 else 10
 
     def search_authors(self) -> None:
         self.__authors = Counter()
@@ -185,6 +180,7 @@ class WhatsappAnalyzer(object):
         self.__summary = WhatsappResult(
             self.__authors,
             self.__emojis_by_person,
-            self.__words_by_person
+            self.__words_by_person,
+            self.__summary_parameters
         )
         self.__summary.print_results()
