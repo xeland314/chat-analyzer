@@ -3,6 +3,7 @@ from datetime import datetime
 from emoji import demojize
 from models import Chat, Message
 from nltk.probability import FreqDist
+from os.path import exists
 from re import compile
 from rich import print as rprint
 from rich.console import Console
@@ -143,13 +144,16 @@ class WhatsappAnalyzer(object):
             raise NotImplementedError()
         else:
             if isinstance(args[0], str):
+                file = args[0]
+                if not exists(file):
+                    raise FileNotFoundError(f"El archivo {file} no existe.")
                 lanalyzer = LexicalAnalyzer()
-                lanalyzer.process_file(args[0])
+                lanalyzer.process_file(file)
                 self.__chat = lanalyzer.get_chat()
             elif isinstance(args[0], Chat):
                 self.__chat = args[0]
             else:
-                NotImplementedError()
+                raise NotImplementedError()
 
     def search_authors(self) -> None:
         self.__authors = Counter()
