@@ -7,6 +7,7 @@ from stopwords import STOPWORDS, FIRST_LANGUAGE
 
 es_word_pattern = compile(r"^[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+$")
 multimedia_pattern = compile(r"\<Multimedia omitido\>")
+hahaha_pattern = compile(r"(?:[ahjk]?(ja|je|ji|jo|ha|ka)+[hjkx]?)")
 
 class Message(object):
 
@@ -51,9 +52,17 @@ class Message(object):
         if self.is_multimedia:
             return Counter()
         words = word_tokenize(self.__message, language=FIRST_LANGUAGE)
-        filtered_words = [word for word in words if es_word_pattern.match(word)]
+        filtered_words = Counter()
+        for word in words:
+            word = word.casefold()
+            if word in STOPWORDS:
+                continue
+            if hahaha_pattern.search(word):
+                continue
+            if es_word_pattern.search(word):
+                filtered_words[word] += 1
         del(words)
-        return Counter([word.casefold() for word in filtered_words if word.casefold() not in STOPWORDS])
+        return filtered_words
 
     def add_more_text(self, text) -> None:
         self.__message += "\n" + text
