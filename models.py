@@ -7,7 +7,7 @@ from stopwords import STOPWORDS, FIRST_LANGUAGE
 
 es_word_pattern = compile(r"^[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+$")
 multimedia_pattern = compile(r"\<Multimedia omitido\>")
-hahaha_pattern = compile(r"(?:[ahjk]?(ja|je|ji|jo|ha|ka)+[hjkx]?)")
+hahaha_pattern = compile(r"(?:[ahjk]?(ja|je|ji|jo|js|ha|ka)+[hjksx]?)")
 
 class Message(object):
 
