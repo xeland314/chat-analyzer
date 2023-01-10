@@ -1,10 +1,17 @@
 from analyzer import WhatsappAnalyzer
 from os.path import exists
-from typer import run, Option, Argument
+from typer import run, Option, Argument, BadParameter
 from typing import Optional
 
+def file_callback(file: str) -> None:
+    if not exists(file):
+        raise BadParameter(f"El archivo {file} no existe.")
+    return file
+
 def main(
-    file: Optional[str] = Argument(None, help="File name o path."), 
+    file: Optional[str] = Argument(
+        None, help="File name o path.", callback=file_callback
+    ), 
     install: bool = Option(
         False, "--install", "-i", help="Install nltk dependencies."
     ),
@@ -20,9 +27,6 @@ def main(
         nltk.download("punkt")
         nltk.download("stopwords")
         return
-
-    if not exists(file):
-        raise FileNotFoundError(f"El archivo {file} no existe.")
 
     analyzer = WhatsappAnalyzer(file, words, emojis)
     analyzer.print_summary()
