@@ -1,13 +1,23 @@
+"""
+models
+
+Author: Christopher Villamarín (xeland314)
+
+Dependencies: standard python modules (collections, datetime, re),
+downloaded packages (emoji, nltk), own module (stopwords).
+"""
+
 from collections import Counter
 from datetime import datetime
+import re
+
 from emoji import distinct_emoji_list
 from nltk.tokenize import word_tokenize
-from re import compile
 from stopwords import STOPWORDS, FIRST_LANGUAGE
 
-es_word_pattern = compile(r"^[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+$")
-multimedia_pattern = compile(r"\<Multimedia omitido\>")
-hahaha_pattern = compile(r"(?:[ahjk]?(ja|je|ji|jo|js|ha|ka)+[hjksx]?)")
+es_word_pattern = re.compile(r"^[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+$")
+multimedia_pattern = re.compile(r"\<Multimedia omitido\>")
+hahaha_pattern = re.compile(r"(?:[ahjk]?(ja|je|ji|jo|js|ha|ka)+[hjksx]?)")
 
 class Message(object):
 
@@ -16,16 +26,16 @@ class Message(object):
         <date> - <author>: <content>
 
     Parameters:
-        - date
-        - author
-        - message
+        - date: datetime
+        - author: str
+        - message: str
 
     Returns:
-        - emojis
-        - words
+        - emojis: Counter
+        - words: Counter
     """
 
-    def __init__(self, date_time, author, message) -> None:
+    def __init__(self, date_time: datetime, author: str, message: str) -> None:
         self.__date_time = date_time
         self.__author = author
         self.__message = message
@@ -40,6 +50,9 @@ class Message(object):
 
     @property
     def emojis(self) -> Counter:
+        """
+        Returns a list with the unique emojis present in the message. 
+        """
         emojis = distinct_emoji_list(self.__message)
         return Counter(emojis)
 
@@ -49,28 +62,41 @@ class Message(object):
 
     @property
     def words(self) -> Counter:
+        """
+        Returns a Counter object containing the words
+        of the message, filtered to remove unnecessary words
+        like STOPWORDS and specific regex patterns.
+        """
         if self.is_multimedia:
             return Counter()
         words = word_tokenize(self.__message, language=FIRST_LANGUAGE)
         filtered_words = Counter()
         for word in words:
-            word = word.casefold()
+            word = word.lower()
             if word in STOPWORDS:
                 continue
             if hahaha_pattern.search(word):
                 continue
             if es_word_pattern.search(word):
                 filtered_words[word] += 1
-        del(words)
         return filtered_words
 
-    def add_more_text(self, text) -> None:
+    def add_more_text(self, text: str) -> None:
+        """
+        This function is responsible for adding more text to an existing message.
+        """
         self.__message += "\n" + text
 
     def __str__(self) -> str:
         return self.__message
 
 class EmptyChat(Exception):
+
+    """
+    EmptyChat:
+
+    Exception thrown when trying to access an empty chat.
+    """
 
     def __init__(self) -> None:
         super().__init__("Empty chat")
@@ -102,7 +128,7 @@ class Chat(object):
     def __iter__(self):
         self.index = 0
         return self
-  
+
     def __len__(self) -> int:
         "Return the total number of messages in the chat"
         return len(self.__messages)
