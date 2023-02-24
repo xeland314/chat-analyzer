@@ -10,8 +10,9 @@ Las librerías necesarias para el uso de este programa son:
 
 - emoji==2.2.0
 - nltk==3.8
-- rich==13.0.0
+- rich==13.3.1
 - typer==0.7.0
+- wordcloud==1.8.2.2
 
 Se puede clonar este repositorio:
 
@@ -43,6 +44,8 @@ Esto descargará:
 import nltk
 nltk.download("punkt")      # Separa el texto en palabras y signos de puntuación
 nltk.download("stopwords")  # Palabras más comunes para filtrar del texto original
+nltk.download("wordnet")
+nltk.download("vader_lexicon")
 ```
 
 ## Uso
@@ -80,4 +83,4 @@ Los valores por defecto, son 30 palabras y 15 emojis por mostrar en el resumen.
 
 Por consola se imprimirán varias tablas que indican las palabras y emojis más utilizados en el chat por cada persona del chat.
 
-Nota importante: **¡Debes esperar entre 1 a 3 minutos!**
+Nota importante: **¡Debes esperar de 1 a 3 minutos!**

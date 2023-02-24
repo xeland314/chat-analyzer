@@ -5,6 +5,7 @@ __pycache__/
 
 # chat files
 chats/
+results/
 
 # C extensions
 *.so

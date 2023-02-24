@@ -53,7 +53,7 @@ python chat_analyzer.py --help
 
 <a id="chat_analyzer.file_callback"></a>
 
-### file\_callback
+#### file\_callback
 
 ```python
 def file_callback(file: str) -> str
@@ -61,11 +61,6 @@ def file_callback(file: str) -> str
 
 file_callback
 Checks if a file exists and throws an exception if not.
-
-**Arguments**:
-
-- `file` _str_ - File name.
-  
 
 **Raises**:
 

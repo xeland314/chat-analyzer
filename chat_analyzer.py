@@ -56,14 +56,9 @@ def file_callback(file: str) -> str:
     file_callback
         Checks if a file exists and throws an exception if not.
 
-    Args:
-        file (str): File name.
-
     Raises:
         BadParameter: If the file does not exist.
     """
-    if file is None:
-        return
     if not exists(file):
         raise BadParameter(f"El archivo {file} no existe.")
     return file
@@ -86,6 +81,7 @@ def main(
         download("punkt")
         download("stopwords")
         download("wordnet")
+        download("vader_lexicon")
         return
 
     analyzer = WhatsappAnalyzer(file, words, emojis)

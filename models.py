@@ -3,21 +3,39 @@ models
 
 Author: Christopher Villamarín (xeland314)
 
-Dependencies: standard python modules (collections, datetime, re),
-downloaded packages (emoji, nltk), own module (stopwords).
+Dependencies:
+- collections
+- datetime
+- itertools
+- os
+- re
+- typing
+- emoji
+- nltk
+- wordcloud
+- stopwords (own module)
 """
 
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, date
+from itertools import chain
+import os
 import re
+from typing import Optional
 
 from emoji import distinct_emoji_list
+from nltk.probability import FreqDist
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
+from wordcloud import WordCloud
+
 from stopwords import STOPWORDS, FIRST_LANGUAGE
 
 es_word_pattern = re.compile(r"^[A-Za-záéíóúÁÉÍÓÚüÜñÑ]+$")
 multimedia_pattern = re.compile(r"\<Multimedia omitido\>")
-hahaha_pattern = re.compile(r"(?:[ahjk]?(ja|je|ji|jo|js|ha|ka)+[hjksx]?)")
+hahaha_pattern = re.compile(r"(?:[ahjk]?(ja|je|ji|jo|js|ha|ka|xa)+[hjksx]?)")
+
+sentiment_analyzer = SentimentIntensityAnalyzer()
 
 class Message(object):
 
@@ -27,7 +45,6 @@ class Message(object):
 
     Parameters:
         - date: datetime
-        - author: str
         - message: str
 
     Returns:
@@ -35,37 +52,37 @@ class Message(object):
         - words: Counter
     """
 
-    def __init__(self, date_time: datetime, author: str, message: str) -> None:
+    def __init__(self, date_time: datetime, message: str) -> None:
         self.__date_time = date_time
-        self.__author = author
         self.__message = message
 
     @property
-    def author(self) -> str:
-        return self.__author
-
-    @property
     def date_time(self) -> datetime:
+        "Returns the date when the message was writed."
         return self.__date_time
 
     @property
     def emojis(self) -> Counter:
-        """
-        Returns a list with the unique emojis present in the message. 
-        """
+        "Returns a list with the unique emojis present in the message."
         emojis = distinct_emoji_list(self.__message)
         return Counter(emojis)
 
     @property
     def is_multimedia(self) -> bool:
+        "Determines if the message is multimedia and not text."
         return multimedia_pattern.search(self.__message)
+
+    @property
+    def text(self) -> str:
+        "Returns the message content."
+        return self.__message
 
     @property
     def words(self) -> Counter:
         """
-        Returns a Counter object containing the words
-        of the message, filtered to remove unnecessary words
-        like STOPWORDS and specific regex patterns.
+        Returns a Counter object containing the words of the message,
+        filtered to remove unnecessary words like STOPWORDS, specific
+        regex patterns, and emojis.
         """
         if self.is_multimedia:
             return Counter()
@@ -73,9 +90,7 @@ class Message(object):
         filtered_words = Counter()
         for word in words:
             word = word.lower()
-            if word in STOPWORDS:
-                continue
-            if hahaha_pattern.search(word):
+            if word in STOPWORDS or hahaha_pattern.search(word):
                 continue
             if es_word_pattern.search(word):
                 filtered_words[word] += 1
@@ -83,59 +98,219 @@ class Message(object):
 
     def add_more_text(self, text: str) -> None:
         """
-        This function is responsible for adding more text to an existing message.
+        This function is responsible for
+        adding more text to an existing message.
         """
-        self.__message += "\n" + text
+        self.__message += text
+
+    def get_word_count(self) -> int:
+        "Returns the number of words in the message."
+        return len(word_tokenize(self.__message))
+
+    def get_character_count(self) -> int:
+        "Returns the number of characters in the message."
+        return len(self.__message)
+
+    def get_sentiment(self) -> float:
+        """
+        Returns a float between -1 and 1 indicating
+        the overall sentiment of the message.
+        """
+        sentiment_scores = sentiment_analyzer.polarity_scores(self.__message)
+        return sentiment_scores["compound"]
+
+    def __len__(self) -> int:
+        "Returns the number of characters in the message."
+        return len(self.__message)
 
     def __str__(self) -> str:
         return self.__message
 
-class EmptyChat(Exception):
-
+class Author(object):
     """
-    EmptyChat:
+    A class that represents an author of messages in a chat.
 
-    Exception thrown when trying to access an empty chat.
-    """
-
-    def __init__(self) -> None:
-        super().__init__("Empty chat")
-
-class Chat(object):
-
-    """
-    The Chat class allows to manage and manipulate messages.
+    Attributes:
+        - name : str
+        - messages : dict
     """
 
-    def __init__(self) -> None:
-        self.__messages = list[Message]()
-        self.index = 0
+    def __init__(self, name: str) -> None:
+        self.__name = name
+        self.__messages_count = 0
+        self.__last_date = None
+        self.__emojis = FreqDist()
+        self.__words = FreqDist()
+        self.__messages = dict[date, list[Message]]()
 
-    def append(self, new_message: Message) -> None:
-        "Append a new mwssage to the message list."
-        self.__messages.append(new_message)
+    @property
+    def days(self) -> list[date]:
+        "Returns a day list which at least one message was sent."
+        return list(self.__messages.values())
 
-    def get_last_message(self) -> Message:
-        "Return the last message of the message list."
-        if len(self.__messages) == 0:
-            raise EmptyChat()
-        return self.__messages[-1]
+    @property
+    def active_days(self) -> int:
+        "Returns the number of days in which the author sent at least one message."
+        return len(self.days)
+
+    @property
+    def messages(self) -> int:
+        "Returns the total number of messages sent by this author."
+        return self.__messages_count
+
+    @property
+    def name(self) -> str:
+        "Returns the name of the author."
+        return self.__name
+
+    def get_last_message(self) -> Optional[Message]:
+        """
+        Returns the last message of the message list if it exists, 
+        otherwise return None.
+        """
+        last_messages = self.__messages.get(self.__last_date)
+        if last_messages:
+            return last_messages[-1]
+        return None
+
+    def get_messages_from_day(self, day: date) -> list[Message]:
+        "Returns a list of Message objects sent on the specified day."
+        return self.__messages[day]
+
+    def get_message_list(self) -> list[Message]:
+        " Returns a list of all Message objects sent by this author."
+        short_lists = self.__messages.values()
+        return list(chain.from_iterable(short_lists))
+
+    def get_word_frequency(self) -> FreqDist:
+        """
+        Returns a dictionary of all the words that
+        the author has used and their frequency.
+        """
+        if self.__words.B() == 0:
+            for message_list in self.__messages.values():
+                for message in message_list:
+                    self.__words += message.words
+        return self.__words
+
+    def get_emoji_frequency(self) -> FreqDist:
+        """
+        Returns a dictionary of all the words that
+         the author has used and their frequency.
+        """
+        if self.__emojis.B() == 0:
+            for message_list in self.__messages.values():
+                for message in message_list:
+                    self.__emojis += message.emojis
+        return self.__emojis
+
+    def generate_word_cloud(self) -> None:
+        """
+        Generates a wordcloud image from the words that
+        the author wrote in the chat.
+        """
+        words = dict(self.get_word_frequency())
+        word_cloud = WordCloud(
+            width=800, height=400,
+            background_color='white',
+            max_words=2000
+        )
+        word_cloud.generate_from_frequencies(words)
+        if not os.path.isdir("results"):
+            os.mkdir("results")
+        now = datetime.now()
+        date_time = now.strftime("%m/%d/%Y_%H:%M:%S")
+        word_cloud.to_file(f"results/{self.name}_{datetime}_word_cloud.jpg")
+
+    def get_average_words_per_message(self) -> float:
+        "Calculates the average of words per message."
+        total_words = 0
+        for message_list in self.__messages.values():
+            for message in message_list:
+                total_words += message.get_word_count()
+        return total_words / self.messages
+
+    def get_most_common_words(self, n: int) -> FreqDist:
+        "Returns the n most common words used by the current author."
+        return self.get_word_frequency().most_common(n)
+
+    def get_most_common_emojis(self, n: int) -> FreqDist:
+        "Returns the n most common emojis used by the current author."
+        return self.get_emoji_frequency().most_common(n)
+
+    def save_message(self, new_message: Message) -> None:
+        "Registers a new message sent by this author."
+        day: date = new_message.date_time.date()
+        last_messages = self.__messages.get(day)
+        if last_messages is None:
+            self.__messages[day] = []
+        self.__messages[day].append(new_message)
+        self.__last_date = day
+        self.__messages_count += 1
 
     def update_last(self, message: Message) -> None:
-        "Update the last message with more text founded in the file."
-        self.__messages[-1] = message
+        "Updates the last message with more text founded in the file."
+        self.__messages[self.__last_date][-1] = message
 
-    def __iter__(self):
-        self.index = 0
-        return self
+    def __str__(self) -> str:
+        return f"{self.__name}: {self.__messages_count} messages, {self.active_days} active days"
 
-    def __len__(self) -> int:
-        "Return the total number of messages in the chat"
-        return len(self.__messages)
+    def __repr__(self) -> str:
+        return f"<Author '{self.__name}' with {self.__messages_count} messages sent>"
 
-    def __next__(self) -> Message:
-        if self.index >= len(self.__messages):
-            raise StopIteration
-        item = self.__messages[self.index]
-        self.index += 1
-        return item
+class Chat(object):
+    """
+    A class that represents a chat conversation.
+
+    Attributes:
+        __authors (dict): A dictionary of Author objects indexed by their name.
+        __last_author (str): The name of the last author to register a message.
+    """
+    def __init__(self) -> None:
+        self.__authors = dict[str, Author]()
+        self.__last_author = None
+
+    @property
+    def authors(self) -> list[Author]:
+        "Returns a list with all the authors in the chat."
+        return list(self.__authors.values())
+
+    def register_message(self, author_name: str, new_message: Message) -> None:
+        """
+        Registers a new message for a given author. If the author does not
+        exist, creates a new Author object and adds it to the chat's list of
+        authors.
+        """
+        # Check if author already exists in chat's list of authors.
+        author = self.__authors.get(author_name)
+
+        # If not, create a new Author object and add it to the list.
+        if author is None:
+            author = Author(author_name)
+            self.__authors[author_name] = author
+
+        # Add the new message to the author's message list.
+        author.save_message(new_message)
+
+        # Set the last author to the one who sent the new message.
+        self.__last_author = author_name
+
+
+    def get_last_author_name(self) -> Optional[str]:
+        "Returns the last author name that saved a message."
+        if self.__last_author is None:
+            return None
+        return self.__last_author
+
+    def get_last_message(self) -> Optional[Message]:
+        "Returns the last message of the message list."
+        if self.__last_author is None:
+            return None
+        return self.__authors[self.__last_author].get_last_message()
+    
+    def update_last_message(self, author_name: str, message: Message) -> None:
+        "Updates the last message with more text founded in the file."
+        # Check if author already exists in chat's list of authors.
+        author = self.__authors.get(author_name)
+        # Update a old message to the author's message list.
+        author.update_last(message)
