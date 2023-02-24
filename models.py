@@ -220,7 +220,7 @@ class Author(object):
             os.mkdir("results")
         now = datetime.now()
         date_time = now.strftime("%m/%d/%Y_%H:%M:%S")
-        word_cloud.to_file(f"results/{self.name}_{datetime}_word_cloud.jpg")
+        word_cloud.to_file(f"results/{self.name}_{date_time}_word_cloud.jpg")
 
     def get_average_words_per_message(self) -> float:
         "Calculates the average of words per message."

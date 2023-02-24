@@ -51,7 +51,7 @@ from typer import run, Option, Argument, BadParameter
 
 from analyzer import WhatsappAnalyzer
 
-def file_callback(file: str) -> str:
+def file_callback(file: Optional[str]) -> str:
     """
     file_callback
         Checks if a file exists and throws an exception if not.
@@ -59,6 +59,8 @@ def file_callback(file: str) -> str:
     Raises:
         BadParameter: If the file does not exist.
     """
+    if file is None:
+        return
     if not exists(file):
         raise BadParameter(f"El archivo {file} no existe.")
     return file
