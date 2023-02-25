@@ -219,7 +219,7 @@ class Author(object):
         if not os.path.isdir("results"):
             os.mkdir("results")
         now = datetime.now()
-        date_time = now.strftime("%m/%d/%Y_%H:%M:%S")
+        date_time = now.strftime("%m-%d-%Y_%H-%M-%S")
         word_cloud.to_file(f"results/{self.name}_{date_time}_word_cloud.jpg")
 
     def get_average_words_per_message(self) -> float:

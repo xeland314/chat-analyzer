@@ -40,11 +40,11 @@ class LexicalAnalyzer(object):
     """
 
     author_pattern = \
-        re.compile(r'(\d{1,2}/\d{1,2}/\d{2}) (\d{1,2}:\d{2}) - (?P<author>.+?):')
+        re.compile(r'(\d{1,2}/\d{1,2}/\d{2})(,)? (\d{1,2}:\d{2}) - (?P<author>.+?)(\s)?:')
     date_pattern = \
-        re.compile(r'(?P<date>\d{1,2}/\d{1,2}/\d{2}) (?P<time>\d{1,2}:\d{2})')
+        re.compile(r'(?P<date>\d{1,2}/\d{1,2}/\d{2})(,)? (?P<time>\d{1,2}:\d{2})')
     message_pattern = \
-        re.compile(r'(\d{1,2}/\d{1,2}/\d{2}) (\d{1,2}:\d{2}) - (.+?):(?P<message>.+?)(\n|$)')
+        re.compile(r'(\d{1,2}/\d{1,2}/\d{2})(,)? (\d{1,2}:\d{2}) - (.+?)(\s)?:(\s)?(?P<message>.+?)(\n|$)')
 
     def __init__(self) -> None:
         self.__chat = Chat()
