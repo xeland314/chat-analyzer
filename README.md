@@ -44,8 +44,8 @@ Esto descargará:
 import nltk
 nltk.download("punkt")      # Separa el texto en palabras y signos de puntuación
 nltk.download("stopwords")  # Palabras más comunes para filtrar del texto original
-nltk.download("wordnet")
-nltk.download("vader_lexicon")
+nltk.download("wordnet")    # Lemmatizer
+nltk.download("vader_lexicon") # SentimentAnalyzer
 ```
 
 ## Uso
@@ -81,6 +81,24 @@ Los valores por defecto, son 30 palabras y 15 emojis por mostrar en el resumen.
 
 ## Resultados
 
-Por consola se imprimirán varias tablas que indican las palabras y emojis más utilizados en el chat por cada persona del chat.
+Por consola se imprimirán los siguientes resultados:
 
-Nota importante: **¡Debes esperar de 1 a 3 minutos!**
+- Tabla de palabras más utilizadas por persona en el chat.
+- Tabla de emojis más usados por persona en el chat.
+
+También se generará:
+
+- Una nube de palabras (*wordcloud*) de las palabras más usadas.
+
+## Tiempo de ejecución
+
+**¡Debes esperar de 1 a 3 minutos!**
+
+Luego de algunas pruebas se han obtenido los siguientes resultados:
+
+<div id="results" align="center">
+    <img width="484" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQYzl7jxgLN9QGN4yvFYRzU5dMv3WMyJGhbeXYiEHwwtxUKDudXUINhxq3fhXmzv1JbmTVGImI07r0e/pubchart?oid=1886909932&amp;format=image"></img>
+</div>
+
+Estas pruebas se realizaron con un procesador de dos núcleos.
+Puede que con una computadora con mejores prestaciones los tiempos se reduzcan.
