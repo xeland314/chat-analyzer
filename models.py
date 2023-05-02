@@ -9,7 +9,6 @@ Dependencies:
 - itertools
 - os
 - re
-- typing
 - emoji
 - nltk
 - wordcloud
@@ -21,7 +20,6 @@ from datetime import datetime, date
 from itertools import chain
 import os
 import re
-from typing import Optional
 
 from emoji import distinct_emoji_list
 from nltk.probability import FreqDist
@@ -37,7 +35,7 @@ hahaha_pattern = re.compile(r"(?:[ahjk]?(ja|je|ji|jo|js|ha|ka|xa)+[hjksx]?)")
 
 sentiment_analyzer = SentimentIntensityAnalyzer()
 
-class Message(object):
+class Message:
 
     """
     Message format:
@@ -96,13 +94,6 @@ class Message(object):
                 filtered_words[word] += 1
         return filtered_words
 
-    def add_more_text(self, text: str) -> None:
-        """
-        This function is responsible for
-        adding more text to an existing message.
-        """
-        self.__message += text
-
     def get_word_count(self) -> int:
         "Returns the number of words in the message."
         return len(word_tokenize(self.__message))
@@ -126,7 +117,7 @@ class Message(object):
     def __str__(self) -> str:
         return self.__message
 
-class Author(object):
+class Author:
     """
     A class that represents an author of messages in a chat.
 
@@ -138,7 +129,6 @@ class Author(object):
     def __init__(self, name: str) -> None:
         self.__name = name
         self.__messages_count = 0
-        self.__last_date = None
         self.__emojis = FreqDist()
         self.__words = FreqDist()
         self.__messages = dict[date, list[Message]]()
@@ -162,16 +152,6 @@ class Author(object):
     def name(self) -> str:
         "Returns the name of the author."
         return self.__name
-
-    def get_last_message(self) -> Optional[Message]:
-        """
-        Returns the last message of the message list if it exists, 
-        otherwise return None.
-        """
-        last_messages = self.__messages.get(self.__last_date)
-        if last_messages:
-            return last_messages[-1]
-        return None
 
     def get_messages_from_day(self, day: date) -> list[Message]:
         "Returns a list of Message objects sent on the specified day."
@@ -240,17 +220,11 @@ class Author(object):
 
     def save_message(self, new_message: Message) -> None:
         "Registers a new message sent by this author."
-        day: date = new_message.date_time.date()
-        last_messages = self.__messages.get(day)
-        if last_messages is None:
+        day = new_message.date_time.date()
+        if not self.__messages.get(day):
             self.__messages[day] = []
         self.__messages[day].append(new_message)
-        self.__last_date = day
         self.__messages_count += 1
-
-    def update_last(self, message: Message) -> None:
-        "Updates the last message with more text founded in the file."
-        self.__messages[self.__last_date][-1] = message
 
     def __str__(self) -> str:
         return f"{self.__name}: {self.__messages_count} messages, {self.active_days} active days"
@@ -258,17 +232,15 @@ class Author(object):
     def __repr__(self) -> str:
         return f"<Author '{self.__name}' with {self.__messages_count} messages sent>"
 
-class Chat(object):
+class Chat:
     """
     A class that represents a chat conversation.
 
     Attributes:
         __authors (dict): A dictionary of Author objects indexed by their name.
-        __last_author (str): The name of the last author to register a message.
     """
     def __init__(self) -> None:
         self.__authors = dict[str, Author]()
-        self.__last_author = None
 
     @property
     def authors(self) -> list[Author]:
@@ -291,26 +263,3 @@ class Chat(object):
 
         # Add the new message to the author's message list.
         author.save_message(new_message)
-
-        # Set the last author to the one who sent the new message.
-        self.__last_author = author_name
-
-
-    def get_last_author_name(self) -> Optional[str]:
-        "Returns the last author name that saved a message."
-        if self.__last_author is None:
-            return None
-        return self.__last_author
-
-    def get_last_message(self) -> Optional[Message]:
-        "Returns the last message of the message list."
-        if self.__last_author is None:
-            return None
-        return self.__authors[self.__last_author].get_last_message()
-    
-    def update_last_message(self, author_name: str, message: Message) -> None:
-        "Updates the last message with more text founded in the file."
-        # Check if author already exists in chat's list of authors.
-        author = self.__authors.get(author_name)
-        # Update a old message to the author's message list.
-        author.update_last(message)

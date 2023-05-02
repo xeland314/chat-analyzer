@@ -1,14 +1,14 @@
 # Table of Contents
 
 * [analyzer](#analyzer)
-  * [LexicalAnalyzer](#analyzer.LexicalAnalyzer)
-    * [extract\_author](#analyzer.LexicalAnalyzer.extract_author)
-    * [extract\_datetime](#analyzer.LexicalAnalyzer.extract_datetime)
-    * [extract\_message](#analyzer.LexicalAnalyzer.extract_message)
-    * [process\_file](#analyzer.LexicalAnalyzer.process_file)
-    * [get\_chat](#analyzer.LexicalAnalyzer.get_chat)
-  * [WhatsappAnalyzer](#analyzer.WhatsappAnalyzer)
-    * [print\_summary](#analyzer.WhatsappAnalyzer.print_summary)
+  * [WhatsappLexicalAnalyzer](#analyzer.WhatsappLexicalAnalyzer)
+    * [extract\_author](#analyzer.WhatsappLexicalAnalyzer.extract_author)
+    * [extract\_datetime](#analyzer.WhatsappLexicalAnalyzer.extract_datetime)
+    * [extract\_message](#analyzer.WhatsappLexicalAnalyzer.extract_message)
+    * [process\_file](#analyzer.WhatsappLexicalAnalyzer.process_file)
+    * [get\_chat](#analyzer.WhatsappLexicalAnalyzer.get_chat)
+  * [WhatsappStatisticalAnalyzer](#analyzer.WhatsappStatisticalAnalyzer)
+    * [print\_summary](#analyzer.WhatsappStatisticalAnalyzer.print_summary)
 
 <a id="analyzer"></a>
 
@@ -33,12 +33,12 @@ downloaded packages (nltk), own module (models, results).
 
 Author: Christopher Villamarín (xeland314)
 
-<a id="analyzer.LexicalAnalyzer"></a>
+<a id="analyzer.WhatsappLexicalAnalyzer"></a>
 
-## LexicalAnalyzer Objects
+## WhatsappLexicalAnalyzer Objects
 
 ```python
-class LexicalAnalyzer(object)
+class WhatsappLexicalAnalyzer()
 ```
 
 LexicalAnalyzer recognizes message patterns in one chat.
@@ -52,7 +52,7 @@ LexicalAnalyzer recognizes message patterns in one chat.
 
   - chat: Chat
 
-<a id="analyzer.LexicalAnalyzer.extract_author"></a>
+<a id="analyzer.WhatsappLexicalAnalyzer.extract_author"></a>
 
 #### extract\_author
 
@@ -63,7 +63,7 @@ def extract_author(text) -> str
 Extracts the author name from a given text. 
 It uses a regular expression pattern to search for a match in the text.
 
-<a id="analyzer.LexicalAnalyzer.extract_datetime"></a>
+<a id="analyzer.WhatsappLexicalAnalyzer.extract_datetime"></a>
 
 #### extract\_datetime
 
@@ -74,7 +74,7 @@ def extract_datetime(text: str) -> Optional[datetime]
 Extracts a datetime object from the given
 text string using a regular expression pattern.
 
-<a id="analyzer.LexicalAnalyzer.extract_message"></a>
+<a id="analyzer.WhatsappLexicalAnalyzer.extract_message"></a>
 
 #### extract\_message
 
@@ -85,7 +85,7 @@ def extract_message(text) -> str
 Extracts the message content from a given text. 
 It uses a regular expression pattern to search for a match in the text.
 
-<a id="analyzer.LexicalAnalyzer.process_file"></a>
+<a id="analyzer.WhatsappLexicalAnalyzer.process_file"></a>
 
 #### process\_file
 
@@ -115,7 +115,7 @@ Reads a text file and extracts the relevant data to create a Chat object.
   - The extracted data is used to create Message objects
   that are appended to the Chat object.
 
-<a id="analyzer.LexicalAnalyzer.get_chat"></a>
+<a id="analyzer.WhatsappLexicalAnalyzer.get_chat"></a>
 
 #### get\_chat
 
@@ -143,18 +143,18 @@ processing it with the LexicalAnalyzer.
   print(chat)
   ```
 
-<a id="analyzer.WhatsappAnalyzer"></a>
+<a id="analyzer.WhatsappStatisticalAnalyzer"></a>
 
-## WhatsappAnalyzer Objects
+## WhatsappStatisticalAnalyzer Objects
 
 ```python
-class WhatsappAnalyzer(object)
+class WhatsappStatisticalAnalyzer()
 ```
 
 The WhatsappAnalyzer class processes a 
 WhatsApp chat log file and generates a summary report.
 
-<a id="analyzer.WhatsappAnalyzer.print_summary"></a>
+<a id="analyzer.WhatsappStatisticalAnalyzer.print_summary"></a>
 
 #### print\_summary
 

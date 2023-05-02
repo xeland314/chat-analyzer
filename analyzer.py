@@ -27,7 +27,7 @@ from typing import Optional
 from models import Chat, Message
 from results import ConsoleBuilder
 
-class LexicalAnalyzer(object):
+class WhatsappLexicalAnalyzer:
 
     """
     LexicalAnalyzer recognizes message patterns in one chat.
@@ -102,21 +102,27 @@ class LexicalAnalyzer(object):
             that are appended to the Chat object.
         """
         with open(filename, "r", encoding="utf8") as file:
+            current_author = ""
+            current_date_time = None
+            current_text = ""
             for line in file:
                 date_time = self.extract_datetime(line)
                 author = self.extract_author(line)
                 if date_time is None and author == "":
-                    message: Message = self.__chat.get_last_message()
-                    author: str = self.__chat.get_last_author_name()
-                    message.add_more_text(line)
-                    self.__chat.update_last_message(author, message)
+                    current_text += line
                     continue
                 if author == "":
-                    # This could be a Whatsapp message.
                     continue
-                text_message = self.extract_message(line)
+                if current_text:
+                    self.__chat.register_message(
+                        current_author, Message(current_date_time, current_text)
+                    )
+                current_author = author
+                current_date_time = date_time
+                current_text = self.extract_message(line)
+            if current_text:
                 self.__chat.register_message(
-                    author, Message(date_time, text_message)
+                    current_author, Message(current_date_time, current_text)
                 )
 
     def get_chat(self) -> Chat:
@@ -142,7 +148,7 @@ class LexicalAnalyzer(object):
         self.__chat = Chat()
         return chat
 
-class WhatsappAnalyzer(object):
+class WhatsappStatisticalAnalyzer:
 
     """
     The WhatsappAnalyzer class processes a 
@@ -157,7 +163,7 @@ class WhatsappAnalyzer(object):
         self.__parameters["words"] = words if words > 0 else 20
         self.__parameters["emojis"] = emojis if emojis > 0 else 10
 
-        self.__lanalyzer = LexicalAnalyzer()
+        self.__lanalyzer = WhatsappLexicalAnalyzer()
         self.__lanalyzer.process_file(file)
 
         self.__console_builder = ConsoleBuilder()
