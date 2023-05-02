@@ -7,7 +7,6 @@
     * [is\_multimedia](#models.Message.is_multimedia)
     * [text](#models.Message.text)
     * [words](#models.Message.words)
-    * [add\_more\_text](#models.Message.add_more_text)
     * [get\_word\_count](#models.Message.get_word_count)
     * [get\_character\_count](#models.Message.get_character_count)
     * [get\_sentiment](#models.Message.get_sentiment)
@@ -17,7 +16,6 @@
     * [active\_days](#models.Author.active_days)
     * [messages](#models.Author.messages)
     * [name](#models.Author.name)
-    * [get\_last\_message](#models.Author.get_last_message)
     * [get\_messages\_from\_day](#models.Author.get_messages_from_day)
     * [get\_message\_list](#models.Author.get_message_list)
     * [get\_word\_frequency](#models.Author.get_word_frequency)
@@ -27,13 +25,9 @@
     * [get\_most\_common\_words](#models.Author.get_most_common_words)
     * [get\_most\_common\_emojis](#models.Author.get_most_common_emojis)
     * [save\_message](#models.Author.save_message)
-    * [update\_last](#models.Author.update_last)
   * [Chat](#models.Chat)
     * [authors](#models.Chat.authors)
     * [register\_message](#models.Chat.register_message)
-    * [get\_last\_author\_name](#models.Chat.get_last_author_name)
-    * [get\_last\_message](#models.Chat.get_last_message)
-    * [update\_last\_message](#models.Chat.update_last_message)
 
 <a id="models"></a>
 
@@ -49,7 +43,6 @@ Dependencies:
 - itertools
 - os
 - re
-- typing
 - emoji
 - nltk
 - wordcloud
@@ -60,7 +53,7 @@ Dependencies:
 ## Message Objects
 
 ```python
-class Message(object)
+class Message()
 ```
 
 Message format:
@@ -134,17 +127,6 @@ Returns a Counter object containing the words of the message,
 filtered to remove unnecessary words like STOPWORDS, specific
 regex patterns, and emojis.
 
-<a id="models.Message.add_more_text"></a>
-
-#### add\_more\_text
-
-```python
-def add_more_text(text: str) -> None
-```
-
-This function is responsible for
-adding more text to an existing message.
-
 <a id="models.Message.get_word_count"></a>
 
 #### get\_word\_count
@@ -191,7 +173,7 @@ Returns the number of characters in the message.
 ## Author Objects
 
 ```python
-class Author(object)
+class Author()
 ```
 
 A class that represents an author of messages in a chat.
@@ -244,17 +226,6 @@ def name() -> str
 ```
 
 Returns the name of the author.
-
-<a id="models.Author.get_last_message"></a>
-
-#### get\_last\_message
-
-```python
-def get_last_message() -> Optional[Message]
-```
-
-Returns the last message of the message list if it exists, 
-otherwise return None.
 
 <a id="models.Author.get_messages_from_day"></a>
 
@@ -349,22 +320,12 @@ def save_message(new_message: Message) -> None
 
 Registers a new message sent by this author.
 
-<a id="models.Author.update_last"></a>
-
-#### update\_last
-
-```python
-def update_last(message: Message) -> None
-```
-
-Updates the last message with more text founded in the file.
-
 <a id="models.Chat"></a>
 
 ## Chat Objects
 
 ```python
-class Chat(object)
+class Chat()
 ```
 
 A class that represents a chat conversation.
@@ -372,7 +333,6 @@ A class that represents a chat conversation.
 **Attributes**:
 
 - `__authors` _dict_ - A dictionary of Author objects indexed by their name.
-- `__last_author` _str_ - The name of the last author to register a message.
 
 <a id="models.Chat.authors"></a>
 
@@ -396,34 +356,4 @@ def register_message(author_name: str, new_message: Message) -> None
 Registers a new message for a given author. If the author does not
 exist, creates a new Author object and adds it to the chat's list of
 authors.
-
-<a id="models.Chat.get_last_author_name"></a>
-
-#### get\_last\_author\_name
-
-```python
-def get_last_author_name() -> Optional[str]
-```
-
-Returns the last author name that saved a message.
-
-<a id="models.Chat.get_last_message"></a>
-
-#### get\_last\_message
-
-```python
-def get_last_message() -> Optional[Message]
-```
-
-Returns the last message of the message list.
-
-<a id="models.Chat.update_last_message"></a>
-
-#### update\_last\_message
-
-```python
-def update_last_message(author_name: str, message: Message) -> None
-```
-
-Updates the last message with more text founded in the file.
 
