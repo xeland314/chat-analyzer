@@ -49,7 +49,7 @@ from typing import Optional
 from nltk import download
 from typer import run, Option, Argument, BadParameter
 
-from analyzer import WhatsappAnalyzer
+from analyzer import WhatsappStatisticalAnalyzer
 
 def file_callback(file: Optional[str]) -> str:
     """
@@ -86,7 +86,7 @@ def main(
         download("vader_lexicon")
         return
 
-    analyzer = WhatsappAnalyzer(file, words, emojis)
+    analyzer = WhatsappStatisticalAnalyzer(file, words, emojis)
     analyzer.print_summary()
 
 if __name__ == "__main__":
